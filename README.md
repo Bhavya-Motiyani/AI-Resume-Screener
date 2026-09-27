@@ -11,7 +11,7 @@ Upload a resume (PDF) and paste a job description, and the app returns:
 ## How It Works
 
 <p align="center">
-  <img src="Workflow.png" alt="Workflow" width="700">
+  <img src="Workflow.png" alt="Workflow" width="400">
 </p>
 
 
