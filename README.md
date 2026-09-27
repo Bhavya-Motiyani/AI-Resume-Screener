@@ -10,7 +10,9 @@ Upload a resume (PDF) and paste a job description, and the app returns:
 
 ## How It Works
 
-![Workflow](Workflow.png)
+<p align="center">
+  <img src="Workflow.png" alt="Workflow" width="700">
+</p>
 
 
 1. The resume (PDF) is converted to text, and the JD is taken as plain text.
