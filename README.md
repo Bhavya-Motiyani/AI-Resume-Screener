@@ -10,24 +10,56 @@ Upload a resume (PDF) and paste a job description, and the app returns:
 
 ## How It Works
 
-```mermaid
-flowchart TD
-    A[Resume PDF] --> C[Extract Resume Text]
-    B[Job Description] --> D["Qwen2.5-3B: Extract skills from JD"]
-    C --> E[Python: Skill Matching + Normalization]
-    D --> E
-    E --> F[ATS Score + Missing Skills]
-    F --> R[Qwen2.5-3B: Rank top 5 major missing skills]
-    B --> G["HR-Recruiter Llama-3.1-8B"]
-    C --> G
-    G --> H[ATS Tips + Interview Questions]
-    R --> I[MiniCPM: Generate 1 search query per skill]
-    I --> J[Exa MCP Server: Web Search]
-    J --> K[Course Links]
-    F --> M[Final JSON Response]
-    H --> M
-    K --> M
-```
+                 ┌───────────────┐        ┌─────────────────────┐
+                 │  Resume (PDF) │        │  Job Description     │
+                 └───────┬───────┘        └───────────┬──────────┘
+                         │                             │
+                         │                    ┌────────┴────────┐
+                         │                    │                 │
+                         │                    ▼                 ▼
+                         │        ┌─────────────────────┐  ┌───────────────────────┐
+                         │        │ Qwen2.5-3B           │  │ HR-Recruiter Llama    │
+                         │        │ Extract skills from  │  │ (resume + JD)         │
+                         │        │ JD                   │  │                       │
+                         │        └──────────┬───────────┘  └───────────┬───────────┘
+                         │                   │                          │
+                         └──────────┐        ▼                          ▼
+                                    │  ┌─────────────────────┐  ┌───────────────────────┐
+                                    └─▶│ Match skills vs      │  │ ATS-friendliness tips  │
+                                       │ resume → ATS score   │  │ + interview questions  │
+                                       │ + missing skills     │  │                       │
+                                       └──────────┬───────────┘  └───────────┬───────────┘
+                                                  │                          │
+                                                  ▼                          │
+                                       ┌─────────────────────┐              │
+                                       │ Qwen2.5-3B           │              │
+                                       │ Rank top 5 missing   │              │
+                                       │ skills               │              │
+                                       └──────────┬───────────┘              │
+                                                  │                          │
+                                                  ▼                          │
+                                       ┌─────────────────────┐              │
+                                       │ MiniCPM              │              │
+                                       │ Generate 1 search    │              │
+                                       │ query per skill      │              │
+                                       └──────────┬───────────┘              │
+                                                  │                          │
+                                                  ▼                          │
+                                       ┌─────────────────────┐              │
+                                       │ Exa MCP server       │              │
+                                       │ Web search           │              │
+                                       └──────────┬───────────┘              │
+                                                  │                          │
+                                                  ▼                          │
+                                       ┌─────────────────────┐              │
+                                       │ Course links         │              │
+                                       └──────────┬───────────┘              │
+                                                  │                          │
+                                                  └────────────┬─────────────┘
+                                                                ▼
+                                                     ┌─────────────────────┐
+                                                     │ Final JSON Response │
+                                                     └─────────────────────┘
 
 1. The resume (PDF) is converted to text, and the JD is taken as plain text.
 2. **Qwen2.5-3B** reads the JD and extracts every skill/tool/technology mentioned.
