@@ -70,13 +70,12 @@ The course-recommendation step uses the **Model Context Protocol (MCP)**. MiniCP
 
    You can also setup a virtual environment first before downloading the requirements.txt
 
-   After cd AI-Resume-Screener, run:
+   After cd AI-Resume-Screener, run (for Windows):
 
    ```
    python -m venv venv
    venv\Scripts\activate
    ```
-  (for windows)
   and then run pip install -r requirements.txt
 
   For Linux/macOS:
