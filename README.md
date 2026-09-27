@@ -76,8 +76,14 @@ The course-recommendation step uses the **Model Context Protocol (MCP)**. MiniCP
    python -m venv venv
    venv\Scripts\activate
    ```
+  (for windows)
+  and then run pip install -r requirements.txt
 
-   (for windows)
+  For Linux/macOS:
+  ```
+  python3 -m venv venv
+  source venv/bin/activate
+  ```
 
 ## Author
 
