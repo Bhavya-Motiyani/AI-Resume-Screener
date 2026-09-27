@@ -1,0 +1,7 @@
+venv/
+models/
+llama_bin/
+*.log
+__pycache__/
+*.pyc
+.env
