@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>ResumeAI — ATS resume checker</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <header class="site-header">
+        <div class="wrap">
+            <div class="logo">ResumeAI</div>
+            <span>ATS resume checker</span>
+        </div>
+    </header>
+
+
+    <main class="wrap page">
+
+        <!-- ============ INTRO ============ -->
+
+        <section class="intro">
+
+            <h1>Does your resume actually match the job?</h1>
+
+            <p>
+                Upload your resume, paste the job posting, and get an
+                ATS-style score, the skills you're missing, and a few
+                interview questions to practice.
+            </p>
+
+        </section>
+
+
+        <!-- ============ FORM: two columns ============ -->
+
+        <section class="grid">
+
+            <div class="field">
+
+                <div class="field-head">
+                    <h2>Your resume</h2>
+                    <p>PDF, up to 10 MB</p>
+                </div>
+
+                <label class="dropzone" id="uploadArea" for="resume">
+
+                    <input
+                        type="file"
+                        id="resume"
+                        name="resume"
+                        accept=".pdf,application/pdf"
+                        class="visually-hidden"
+                    >
+
+                    <strong>Choose a PDF</strong>
+                    <span>or drag it onto this box</span>
+
+                </label>
+
+                <div class="file-line" id="selectedFile" hidden>
+                    <span class="name" id="fileName"></span>
+                    <button type="button" class="text-button" id="removeFile">
+                        remove
+                    </button>
+                </div>
+
+            </div>
+
+
+            <div class="field">
+
+                <div class="field-head">
+                    <label for="jobDescription">Job description</label>
+                    <p>Paste the whole posting</p>
+                </div>
+
+                <textarea
+                    id="jobDescription"
+                    name="job_description"
+                    placeholder="Paste the job description here…"
+                ></textarea>
+
+                <div class="char-count">
+                    <span id="charCount">0</span> characters
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <div class="actions">
+
+            <button type="button" class="btn" id="analyzeButton">
+                <span id="buttonLabel">Check my resume</span>
+            </button>
+
+            <p class="note">
+                This runs on your own computer, so it takes a few
+                minutes. Keep the tab open.
+            </p>
+
+        </div>
+
+
+        <div class="progress" id="progress" hidden role="status" aria-live="polite">
+            <div class="progress-bar"></div>
+            <div class="progress-text">
+                <span>Working on it…</span>
+                <span class="elapsed" id="elapsed">0:00</span>
+            </div>
+        </div>
+
+
+        <div class="error" id="errorBox" hidden role="alert">
+            <strong>That didn't work.</strong>
+            <p id="errorMessage"></p>
+        </div>
+
+
+        <!-- ============ RESULTS: boxes side by side ============ -->
+
+        <section class="results" id="resultsSection" hidden>
+
+            <div class="results-head">
+                <h2>Results</h2>
+                <button type="button" class="text-button" id="reanalyzeButton">
+                    Start over
+                </button>
+            </div>
+
+            <div class="grid results-grid">
+
+                <!-- Score -->
+
+                <div class="box span-5">
+
+                    <div class="box-head">
+                        <h3>Score</h3>
+                        <p>How well the resume matches</p>
+                    </div>
+
+                    <div class="score-row">
+
+                        <div class="grade" id="gradeMark">
+
+                            <svg viewBox="0 0 240 128" aria-hidden="true">
+                                <path
+                                    pathLength="1"
+                                    d="M 30 42 C 58 10, 172 4, 210 34 C 238 58, 214 106, 140 118 C 70 128, 14 104, 16 66 C 18 34, 70 14, 122 12"
+                                ></path>
+                            </svg>
+
+                            <div class="grade-number">
+                                <span id="atsScore">0</span><small>/100</small>
+                            </div>
+
+                        </div>
+
+                        <div class="score-text">
+                            <h3 id="scoreTitle"></h3>
+                            <p id="scoreDescription"></p>
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Missing skills -->
+
+                <div class="box span-7">
+
+                    <div class="box-head">
+                        <h3>Missing skills</h3>
+                        <p>In the posting, not on your resume</p>
+                    </div>
+
+                    <div class="skills" id="missingSkills"></div>
+
+                    <p class="no-skills" id="noMissingSkills" hidden>
+                        Nothing major is missing.
+                    </p>
+
+                </div>
+
+
+                <!-- Improvements -->
+
+                <div class="box span-6">
+
+                    <div class="box-head">
+                        <h3>What to change</h3>
+                        <p>To get past the ATS</p>
+                    </div>
+
+                    <div class="prose" id="atsImprovement"></div>
+
+                </div>
+
+
+                <!-- Questions -->
+
+                <div class="box span-6">
+
+                    <div class="box-head">
+                        <h3>Questions to practice</h3>
+                        <p>Ones an interviewer might ask</p>
+                    </div>
+
+                    <ol class="questions" id="technicalQuestions"></ol>
+
+                </div>
+
+
+                <!-- Courses -->
+
+                <div class="box wide" id="coursesCard">
+
+                    <div class="box-head">
+                        <h3>Where to learn</h3>
+                        <p>For the skills you're missing</p>
+                    </div>
+
+                    <div class="courses" id="coursesContainer"></div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <footer class="wrap footer">
+        ResumeAI
+    </footer>
+
+
+    <script>
+
+        const $ = (id) => document.getElementById(id);
+
+        const resumeInput     = $("resume");
+        const uploadArea      = $("uploadArea");
+        const selectedFile    = $("selectedFile");
+        const fileName        = $("fileName");
+        const removeFile      = $("removeFile");
+        const jobDescription  = $("jobDescription");
+        const charCount       = $("charCount");
+        const analyzeButton   = $("analyzeButton");
+        const buttonLabel     = $("buttonLabel");
+        const progress        = $("progress");
+        const elapsed         = $("elapsed");
+        const errorBox        = $("errorBox");
+        const errorMessage    = $("errorMessage");
+        const resultsSection  = $("resultsSection");
+        const reanalyzeButton = $("reanalyzeButton");
+
+        const MAX_FILE_BYTES = 10 * 1024 * 1024;
+
+        let timerId = null;
+
+
+        // =====================================================
+        // FILE UPLOAD
+        // =====================================================
+
+        function isPdf(file) {
+            return (
+                file.type === "application/pdf" ||
+                file.name.toLowerCase().endsWith(".pdf")
+            );
+        }
+
+        function clearFile() {
+            resumeInput.value = "";
+            selectedFile.hidden = true;
+            uploadArea.classList.remove("has-file");
+        }
+
+        resumeInput.addEventListener("change", () => {
+
+            if (resumeInput.files.length === 0) {
+                return;
+            }
+
+            const file = resumeInput.files[0];
+
+            if (!isPdf(file)) {
+                showError("Please upload a PDF file.");
+                clearFile();
+                return;
+            }
+
+            if (file.size > MAX_FILE_BYTES) {
+                showError("The resume must be smaller than 10 MB.");
+                clearFile();
+                return;
+            }
+
+            fileName.textContent = file.name;
+            selectedFile.hidden = false;
+            uploadArea.classList.add("has-file");
+
+            hideError();
+        });
+
+        removeFile.addEventListener("click", clearFile);
+
+
+        // Drag and drop
+
+        uploadArea.addEventListener("dragover", (event) => {
+            event.preventDefault();
+            uploadArea.classList.add("dragging");
+        });
+
+        uploadArea.addEventListener("dragleave", () => {
+            uploadArea.classList.remove("dragging");
+        });
+
+        uploadArea.addEventListener("drop", (event) => {
+
+            event.preventDefault();
+            uploadArea.classList.remove("dragging");
+
+            const files = event.dataTransfer.files;
+
+            if (files.length > 0 && isPdf(files[0])) {
+                resumeInput.files = files;
+                resumeInput.dispatchEvent(new Event("change"));
+            } else {
+                showError("Please upload a PDF file.");
+            }
+        });
+
+
+        // Character count
+
+        jobDescription.addEventListener("input", () => {
+            charCount.textContent = jobDescription.value.length;
+        });
+
+
+        // =====================================================
+        // ANALYZE
+        // =====================================================
+
+        analyzeButton.addEventListener("click", analyzeResume);
+
+        reanalyzeButton.addEventListener("click", () => {
+            resultsSection.hidden = true;
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+
+
+        async function analyzeResume() {
+
+            hideError();
+
+            if (resumeInput.files.length === 0) {
+                showError("Please upload your resume PDF.");
+                return;
+            }
+
+            if (jobDescription.value.trim() === "") {
+                showError("Please paste the job description.");
+                return;
+            }
+
+            const formData = new FormData();
+
+            formData.append("resume", resumeInput.files[0]);
+            formData.append("job_description", jobDescription.value.trim());
+
+            setLoading(true);
+            resultsSection.hidden = true;
+
+            try {
+
+                const response = await fetch("/analyze", {
+                    method: "POST",
+                    body: formData
+                });
+
+                let result;
+
+                try {
+                    result = await response.json();
+                } catch (parseError) {
+                    throw new Error(
+                        "The server returned an unexpected response " +
+                        `(status ${response.status}).`
+                    );
+                }
+
+                if (!response.ok || !result.success) {
+                    throw new Error(
+                        result.error ||
+                        "Something went wrong while analyzing the resume."
+                    );
+                }
+
+                displayResults(result.data || {});
+
+            } catch (error) {
+
+                console.error(error);
+
+                showError(
+                    error.message || "Unable to analyze the resume."
+                );
+
+            } finally {
+
+                setLoading(false);
+            }
+        }
+
+
+        // =====================================================
+        // DISPLAY RESULTS
+        // =====================================================
+
+        function displayResults(data) {
+
+            resultsSection.hidden = false;
+
+            // Replay the fade on every new result
+            resultsSection.classList.remove("reveal");
+            void resultsSection.offsetWidth;
+            resultsSection.classList.add("reveal");
+
+            renderScore(data.ats_score);
+            renderMissingSkills(data.missing_skills);
+            renderImprovements(data.Increase_ATS_Friendliness);
+            renderTechnicalQuestions(data.technical_questions);
+            renderCourses(data.courses);
+
+            resultsSection.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+        }
+
+
+        // ---------- Score ----------
+
+        function renderScore(rawScore) {
+
+            const hasScore =
+                rawScore !== null &&
+                rawScore !== undefined &&
+                rawScore !== "" &&
+                Number.isFinite(Number(rawScore));
+
+            const score = hasScore
+                ? Math.min(100, Math.max(0, Number(rawScore)))
+                : 0;
+
+            $("atsScore").textContent = hasScore ? Math.round(score) : "—";
+
+            // Draw the red circle again for every new result
+            const grade = $("gradeMark");
+
+            grade.classList.remove("draw");
+            grade.classList.toggle("no-score", !hasScore);
+
+            void grade.offsetWidth;
+
+            if (hasScore) {
+                grade.classList.add("draw");
+            }
+
+            const title = $("scoreTitle");
+            const description = $("scoreDescription");
+
+            if (!hasScore) {
+
+                title.textContent = "No score this time";
+                description.textContent =
+                    "The model didn't return a score for this resume.";
+
+            } else if (score >= 80) {
+
+                title.textContent = "Strong match";
+                description.textContent =
+                    "Your resume lines up well with this job description.";
+
+            } else if (score >= 60) {
+
+                title.textContent = "Decent match, with gaps";
+                description.textContent =
+                    "There's reasonable overlap, but a few things are worth fixing before you apply.";
+
+            } else {
+
+                title.textContent = "Weak match";
+                description.textContent =
+                    "Your resume doesn't line up well with this posting yet. The sections below show what to work on.";
+            }
+        }
+
+
+        // ---------- Missing skills ----------
+
+        function renderMissingSkills(skills) {
+
+            const container = $("missingSkills");
+            const empty = $("noMissingSkills");
+
+            container.innerHTML = "";
+
+            if (!Array.isArray(skills) || skills.length === 0) {
+                empty.hidden = false;
+                return;
+            }
+
+            empty.hidden = true;
+
+            skills.forEach((skill) => {
+
+                const tag = document.createElement("span");
+
+                tag.className = "skill-tag";
+                tag.textContent = String(skill);
+
+                container.appendChild(tag);
+            });
+        }
+
+
+        // ---------- What to change ----------
+
+        function renderImprovements(text) {
+
+            const container = $("atsImprovement");
+
+            container.innerHTML = "";
+
+            const lines = String(text || "")
+                .split(/\r?\n/)
+                .map((line) => line.trim())
+                .filter(Boolean);
+
+            if (lines.length === 0) {
+
+                const p = document.createElement("p");
+
+                p.textContent = "No suggestions came back.";
+                container.appendChild(p);
+
+                return;
+            }
+
+            const marker = /^([-*•]|\d+[.)])\s+/;
+            let list = null;
+
+            lines.forEach((line) => {
+
+                if (marker.test(line)) {
+
+                    if (!list) {
+                        list = document.createElement("ul");
+                        container.appendChild(list);
+                    }
+
+                    const li = document.createElement("li");
+
+                    li.textContent = line.replace(marker, "");
+                    list.appendChild(li);
+
+                } else {
+
+                    list = null;
+
+                    const p = document.createElement("p");
+
+                    p.textContent = line;
+                    container.appendChild(p);
+                }
+            });
+        }
+
+
+        // ---------- Questions ----------
+
+        function renderTechnicalQuestions(questions) {
+
+            const container = $("technicalQuestions");
+
+            container.innerHTML = "";
+
+            if (!Array.isArray(questions) || questions.length === 0) {
+
+                const li = document.createElement("li");
+
+                li.textContent = "No questions were generated.";
+                container.appendChild(li);
+
+                return;
+            }
+
+            questions.forEach((question, index) => {
+
+                const li = document.createElement("li");
+                const number = document.createElement("span");
+                const text = document.createElement("span");
+
+                number.className = "q-num";
+                number.textContent = index + 1 + ".";
+
+                text.className = "q-text";
+                text.textContent = String(question);
+
+                li.appendChild(number);
+                li.appendChild(text);
+                container.appendChild(li);
+            });
+        }
+
+
+        // ---------- Where to learn ----------
+
+        function describeUrl(value) {
+
+            try {
+
+                const url = new URL(value);
+
+                if (url.protocol !== "http:" && url.protocol !== "https:") {
+                    return null;
+                }
+
+                const path = (url.pathname + url.search).replace(/\/$/, "");
+
+                return {
+                    href: url.href,
+                    host: url.hostname.replace(/^www\./, ""),
+                    path: path === "/" ? "" : path
+                };
+
+            } catch (error) {
+
+                return null;
+            }
+        }
+
+        function renderCourses(courses) {
+
+            const container = $("coursesContainer");
+            const card = $("coursesCard");
+
+            container.innerHTML = "";
+
+            if (
+                !courses ||
+                typeof courses !== "object" ||
+                Object.keys(courses).length === 0
+            ) {
+                card.hidden = true;
+                return;
+            }
+
+            card.hidden = false;
+
+            Object.entries(courses).forEach(([skill, urls]) => {
+
+                const section = document.createElement("div");
+                const title = document.createElement("h4");
+
+                section.className = "course-skill";
+                title.textContent = skill;
+                section.appendChild(title);
+
+                const links = (Array.isArray(urls) ? urls : [])
+                    .map(describeUrl)
+                    .filter(Boolean);
+
+                if (links.length === 0) {
+
+                    const none = document.createElement("p");
+
+                    none.className = "no-resources";
+                    none.textContent = "Nothing found for this one.";
+                    section.appendChild(none);
+
+                } else {
+
+                    links.forEach((item) => {
+
+                        const link = document.createElement("a");
+                        const host = document.createElement("span");
+                        const path = document.createElement("span");
+
+                        link.className = "course-link";
+                        link.href = item.href;
+                        link.target = "_blank";
+                        link.rel = "noopener noreferrer";
+
+                        host.className = "host";
+                        host.textContent = item.host;
+
+                        path.className = "path";
+                        path.textContent = item.path;
+
+                        link.appendChild(host);
+                        link.appendChild(path);
+                        section.appendChild(link);
+                    });
+                }
+
+                container.appendChild(section);
+            });
+        }
+
+
+        // =====================================================
+        // LOADING STATE
+        // =====================================================
+
+        function formatElapsed(seconds) {
+
+            const m = Math.floor(seconds / 60);
+            const s = String(seconds % 60).padStart(2, "0");
+
+            return `${m}:${s}`;
+        }
+
+        function setLoading(isLoading) {
+
+            analyzeButton.disabled = isLoading;
+            buttonLabel.textContent = isLoading ? "Checking…" : "Check my resume";
+            progress.hidden = !isLoading;
+
+            clearInterval(timerId);
+
+            if (isLoading) {
+
+                const started = Date.now();
+
+                elapsed.textContent = "0:00";
+
+                timerId = setInterval(() => {
+                    elapsed.textContent = formatElapsed(
+                        Math.floor((Date.now() - started) / 1000)
+                    );
+                }, 1000);
+            }
+        }
+
+
+        // =====================================================
+        // ERRORS
+        // =====================================================
+
+        function showError(message) {
+
+            errorMessage.textContent = message;
+            errorBox.hidden = false;
+
+            errorBox.scrollIntoView({
+                behavior: "smooth",
+                block: "center"
+            });
+        }
+
+        function hideError() {
+            errorBox.hidden = true;
+        }
+
+    </script>
+
+</body>
+</html>

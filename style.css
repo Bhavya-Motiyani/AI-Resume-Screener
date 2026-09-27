@@ -1,0 +1,787 @@
+/* ============================================================
+   RESUMEAI
+   Plain paper, black ink, a yellow highlighter and a red pen.
+   No cards, no shadows: just rules, whitespace and type.
+============================================================ */
+
+:root {
+    /* Colour */
+    --bg: #fdfdfb;
+    --ink: #1b1b1b;
+    --ink-2: #444444;
+    --muted: #6a6a66;
+    --rule: #d8d8d2;
+    --mark: #ffe96b;
+    --mark-soft: #fff8cf;
+    --pen: #d33b2c;
+    --pen-soft: #fff1ef;
+
+    /* Type */
+    --serif: Georgia, "Times New Roman", serif;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --mono: ui-monospace, "SF Mono", Consolas, "Liberation Mono", monospace;
+
+    /* Spacing */
+    --s1: 0.5rem;
+    --s2: 0.75rem;
+    --s3: 1rem;
+    --s4: 1.5rem;
+    --s5: 2rem;
+    --s6: 3rem;
+    --s7: 5rem;
+
+    /* Layout */
+    --width: 70rem;
+}
+
+
+/* ============================================================
+   BASE
+============================================================ */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 1.0625rem;
+    line-height: 1.6;
+}
+
+h1, h2, h3, h4, p, ol, ul {
+    margin: 0;
+}
+
+ol, ul {
+    padding: 0;
+    list-style: none;
+}
+
+[hidden] {
+    display: none !important;
+}
+
+::selection {
+    background: var(--mark);
+    color: var(--ink);
+}
+
+:focus-visible {
+    outline: 3px solid var(--ink);
+    outline-offset: 3px;
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.wrap {
+    width: min(var(--width), 100% - 2.5rem);
+    margin-inline: auto;
+}
+
+
+/* ============================================================
+   HEADER
+============================================================ */
+
+.site-header {
+    border-bottom: 2px solid var(--ink);
+}
+
+.site-header .wrap {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: var(--s3) 0;
+}
+
+.logo {
+    font-family: var(--serif);
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+
+.site-header span {
+    font-size: 0.9375rem;
+    color: var(--muted);
+}
+
+
+/* ============================================================
+   PAGE LOAD
+============================================================ */
+
+@keyframes fade {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+.page {
+    animation: fade 500ms ease-out both;
+}
+
+.reveal {
+    animation: fade 450ms ease-out both;
+}
+
+
+/* ============================================================
+   INTRO
+============================================================ */
+
+.intro {
+    display: grid;
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    align-items: end;
+    gap: var(--s5);
+    padding: var(--s6) 0 var(--s5);
+}
+
+.intro h1 {
+    max-width: 14em;
+    font-family: var(--serif);
+    font-size: clamp(2.3rem, 5.5vw, 3.3rem);
+    font-weight: 700;
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+}
+
+.intro p {
+    max-width: 28rem;
+    padding-bottom: 0.3rem;
+    font-size: 1.0625rem;
+    color: var(--ink-2);
+}
+
+
+/* ============================================================
+   GRID  (boxes sit side by side)
+============================================================ */
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--s4);
+}
+
+.wide {
+    grid-column: 1 / -1;
+}
+
+/* Input columns: a label above a bordered control */
+
+.field {
+    display: flex;
+    flex-direction: column;
+}
+
+.field-head {
+    margin-bottom: var(--s2);
+}
+
+.field-head h2,
+.field-head label {
+    display: block;
+    font-size: 1.0625rem;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.field-head p {
+    font-size: 0.9rem;
+    color: var(--muted);
+}
+
+/* Result boxes: index-card style */
+
+.box {
+    display: flex;
+    flex-direction: column;
+    padding: var(--s4);
+    background: #ffffff;
+    border: 1px solid var(--rule);
+    border-top: 3px solid var(--ink);
+}
+
+.box-head {
+    margin-bottom: var(--s3);
+}
+
+.box-head h3 {
+    font-size: 1.0625rem;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.box-head p {
+    font-size: 0.9rem;
+    color: var(--muted);
+}
+
+@media (min-width: 62rem) {
+
+    .results-grid {
+        grid-template-columns: repeat(12, minmax(0, 1fr));
+    }
+
+    .span-5 { grid-column: span 5; }
+    .span-6 { grid-column: span 6; }
+    .span-7 { grid-column: span 7; }
+}
+
+
+/* ============================================================
+   FORM
+============================================================ */
+
+.dropzone {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 15rem;
+    padding: var(--s5) var(--s4);
+    background: #ffffff;
+    border: 2px solid var(--ink);
+    text-align: center;
+    cursor: pointer;
+    transition: background 200ms ease-out;
+}
+
+.dropzone:hover,
+.dropzone.dragging {
+    background: var(--mark);
+}
+
+.dropzone:focus-within {
+    outline: 3px solid var(--ink);
+    outline-offset: 3px;
+}
+
+.dropzone.has-file {
+    background: var(--mark-soft);
+}
+
+.dropzone strong {
+    display: block;
+    font-family: var(--serif);
+    font-size: 1.25rem;
+}
+
+.dropzone span {
+    display: block;
+    margin-top: 0.15rem;
+    font-size: 0.9375rem;
+    color: var(--ink-2);
+}
+
+.file-line {
+    display: flex;
+    align-items: baseline;
+    gap: var(--s2);
+    margin-top: var(--s2);
+    font-size: 0.9375rem;
+}
+
+.file-line .name {
+    min-width: 0;
+    overflow: hidden;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.text-button {
+    appearance: none;
+    padding: 0;
+    background: none;
+    border: 0;
+    font: inherit;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    color: var(--ink);
+    cursor: pointer;
+}
+
+.text-button:hover {
+    background: var(--mark);
+}
+
+textarea {
+    display: block;
+    flex: 1;
+    width: 100%;
+    min-height: 15rem;
+    padding: var(--s3);
+    background: #ffffff;
+    border: 2px solid var(--ink);
+    border-radius: 0;
+    font-family: var(--sans);
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--ink);
+    resize: vertical;
+    transition: background 200ms ease-out;
+}
+
+textarea::placeholder {
+    color: var(--muted);
+}
+
+textarea:focus {
+    outline: none;
+    background: var(--mark-soft);
+}
+
+.char-count {
+    margin-top: var(--s1);
+    font-family: var(--mono);
+    font-size: 0.8125rem;
+    text-align: right;
+    color: var(--muted);
+}
+
+
+/* Button */
+
+.btn {
+    appearance: none;
+    padding: 0.9rem 1.8rem;
+    background: var(--ink);
+    border: 2px solid var(--ink);
+    border-radius: 3px;
+    font-family: var(--sans);
+    font-size: 1.0625rem;
+    font-weight: 700;
+    color: #ffffff;
+    cursor: pointer;
+    transition: all 200ms ease-out;
+}
+
+.btn:hover:not(:disabled) {
+    background: var(--mark);
+    color: var(--ink);
+}
+
+.btn:disabled {
+    opacity: 0.55;
+    cursor: wait;
+}
+
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--s2) var(--s4);
+    margin-top: var(--s4);
+}
+
+.note {
+    max-width: 30rem;
+    font-size: 0.9375rem;
+    color: var(--muted);
+}
+
+
+/* Progress */
+
+.progress {
+    max-width: 34rem;
+    margin-top: var(--s4);
+}
+
+.progress-bar {
+    position: relative;
+    height: 4px;
+    overflow: hidden;
+    background: var(--rule);
+}
+
+.progress-bar::after {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 30%;
+    background: var(--ink);
+    animation: slide 1.7s ease-in-out infinite;
+}
+
+@keyframes slide {
+    0%   { transform: translateX(-100%); }
+    100% { transform: translateX(340%); }
+}
+
+.progress-text {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--s2);
+    margin-top: var(--s1);
+    font-size: 0.9375rem;
+    color: var(--ink-2);
+}
+
+.progress-text .elapsed {
+    font-family: var(--mono);
+    color: var(--muted);
+}
+
+
+/* Error */
+
+.error {
+    max-width: 34rem;
+    margin-top: var(--s4);
+    padding: var(--s2) var(--s3);
+    background: var(--pen-soft);
+    border-left: 4px solid var(--pen);
+}
+
+.error strong {
+    display: block;
+}
+
+.error p {
+    font-size: 0.9375rem;
+    color: var(--ink-2);
+}
+
+
+/* ============================================================
+   RESULTS
+============================================================ */
+
+.results {
+    margin-top: var(--s6);
+}
+
+.results-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--s3);
+    padding-bottom: var(--s3);
+    margin-bottom: var(--s1);
+    border-bottom: 2px solid var(--ink);
+}
+
+.results-head h2 {
+    font-family: var(--serif);
+    font-size: clamp(2rem, 5vw, 2.6rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+}
+
+
+/* Score, circled like a teacher would */
+
+.score-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--s3) var(--s4);
+}
+
+.grade {
+    position: relative;
+    flex: none;
+    width: 15rem;
+    height: 8rem;
+}
+
+.grade svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    transform: rotate(-2deg);
+}
+
+.grade path {
+    fill: none;
+    stroke: var(--pen);
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+}
+
+.grade.draw path {
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 1000ms ease-out 300ms;
+}
+
+.grade.no-score svg {
+    display: none;
+}
+
+.grade-number {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    padding-top: 1.7rem;
+    font-family: var(--serif);
+    font-size: 3.6rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.grade-number small {
+    margin-left: 0.2rem;
+    font-family: var(--sans);
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--muted);
+}
+
+.score-text {
+    flex: 1;
+    min-width: 12rem;
+}
+
+.score-text h3 {
+    font-family: var(--serif);
+    font-size: 1.6rem;
+    line-height: 1.2;
+}
+
+.score-text p {
+    max-width: 30rem;
+    margin-top: 0.3rem;
+    color: var(--ink-2);
+}
+
+
+/* Missing skills, highlighted */
+
+.skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem 0.5rem;
+}
+
+.skill-tag {
+    padding: 0.1rem 0.5rem;
+    background: var(--mark);
+    font-weight: 600;
+}
+
+.skill-tag:nth-child(odd)  { transform: rotate(-0.8deg); }
+.skill-tag:nth-child(even) { transform: rotate(0.6deg); }
+
+.no-skills {
+    color: var(--ink-2);
+}
+
+
+/* Improvements */
+
+.prose {
+    max-width: 38rem;
+    color: var(--ink-2);
+}
+
+.prose p + p,
+.prose p + ul,
+.prose ul + p {
+    margin-top: var(--s2);
+}
+
+.prose ul li {
+    padding-left: 1.2rem;
+    text-indent: -1.2rem;
+}
+
+.prose ul li + li {
+    margin-top: 0.4rem;
+}
+
+.prose ul li::before {
+    content: "–  ";
+    font-weight: 700;
+    color: var(--pen);
+}
+
+
+/* Questions */
+
+.questions {
+    counter-reset: q;
+}
+
+.questions li {
+    display: grid;
+    grid-template-columns: 2.2rem minmax(0, 1fr);
+    padding: 0.65rem 0;
+    border-top: 1px solid var(--rule);
+}
+
+.questions li:first-child {
+    padding-top: 0;
+    border-top: 0;
+}
+
+.questions .q-num {
+    font-family: var(--mono);
+    font-size: 0.9375rem;
+    color: var(--pen);
+}
+
+.questions .q-text {
+    max-width: 38rem;
+}
+
+
+/* Courses */
+
+.courses {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(18rem, 100%), 1fr));
+    gap: var(--s4);
+}
+
+.course-skill h4 {
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.course-link {
+    display: block;
+    width: fit-content;
+    max-width: 100%;
+    margin-top: 0.3rem;
+    overflow: hidden;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-overflow: ellipsis;
+    text-underline-offset: 3px;
+    white-space: nowrap;
+    color: var(--ink);
+    transition: background 200ms ease-out;
+}
+
+.course-link:hover {
+    background: var(--mark);
+}
+
+.course-link .host {
+    font-weight: 600;
+}
+
+.course-link .path {
+    color: var(--muted);
+}
+
+.no-resources {
+    margin-top: 0.3rem;
+    font-size: 0.9375rem;
+    color: var(--muted);
+}
+
+
+/* ============================================================
+   FOOTER
+============================================================ */
+
+.footer {
+    margin-top: var(--s6);
+    padding: var(--s4) 0 var(--s5);
+    border-top: 2px solid var(--ink);
+    font-size: 0.875rem;
+    color: var(--muted);
+}
+
+
+/* ============================================================
+   SMALL SCREENS
+============================================================ */
+
+@media (max-width: 51.99rem) {
+
+    .intro {
+        grid-template-columns: minmax(0, 1fr);
+        gap: var(--s2);
+        padding: var(--s5) 0 var(--s4);
+    }
+}
+
+
+@media (max-width: 43.99rem) {
+
+    .grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .site-header span {
+        display: none;
+    }
+
+    .grade {
+        width: 12rem;
+        height: 6.4rem;
+    }
+
+    .grade-number {
+        padding-top: 1.35rem;
+        font-size: 2.9rem;
+    }
+
+    .btn {
+        width: 100%;
+    }
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+
+    .grade path {
+        stroke-dashoffset: 0;
+    }
+
+    .progress-bar::after {
+        width: 100%;
+        opacity: 0.35;
+    }
+}

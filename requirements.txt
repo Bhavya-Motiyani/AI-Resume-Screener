@@ -1,0 +1,12 @@
+Flask
+transformers==4.46.3
+accelerate==0.34.2
+bitsandbytes
+tokenizers>=0.20,<0.21
+huggingface_hub<1.0
+pypdf
+mcp
+
+# Only needed for the one-time LoRA -> GGUF conversion
+gguf
+sentencepiece
