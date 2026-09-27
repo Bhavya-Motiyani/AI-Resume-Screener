@@ -9,6 +9,8 @@ Upload a resume (PDF) and paste a job description, and the app returns:
 - **Course links** to learn each major missing skill
 
 ## How It Works
+
+```mermaid
 flowchart TD
 
     RESUME["Resume (PDF)"] --> TEXT["Resume converted to text"]
@@ -37,6 +39,7 @@ flowchart TD
     TIPS --> JSON
 
     MATCH -->|ATS Score| JSON
+```
 
 1. The resume (PDF) is converted to text, and the JD is taken as plain text.
 2. **Qwen2.5-3B** reads the JD and extracts every skill/tool/technology mentioned.
