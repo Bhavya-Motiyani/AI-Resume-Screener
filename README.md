@@ -68,6 +68,16 @@ The course-recommendation step uses the **Model Context Protocol (MCP)**. MiniCP
 ```
    The GGUF models (~7GB total) will auto-download on first run. The app will then be available at `http://127.0.0.1:5000`.
 
+   You can also setup a virtual environment first before downloading the requirements.txt
+
+   After cd AI-Resume-Screener, run:
+
+   ```python -m venv venv
+   venv\Scripts\activate
+   ```
+
+   (for windows)
+
 ## Author
 
 **Bhavya Motiyani**
