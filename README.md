@@ -72,7 +72,8 @@ The course-recommendation step uses the **Model Context Protocol (MCP)**. MiniCP
 
    After cd AI-Resume-Screener, run:
 
-   ```python -m venv venv
+   ```
+   python -m venv venv
    venv\Scripts\activate
    ```
 
