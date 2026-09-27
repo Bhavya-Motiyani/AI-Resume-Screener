@@ -9,57 +9,34 @@ Upload a resume (PDF) and paste a job description, and the app returns:
 - **Course links** to learn each major missing skill
 
 ## How It Works
+flowchart TD
 
-                 ┌───────────────┐        ┌─────────────────────┐
-                 │  Resume (PDF) │        │  Job Description     │
-                 └───────┬───────┘        └───────────┬──────────┘
-                         │                             │
-                         │                    ┌────────┴────────┐
-                         │                    │                 │
-                         │                    ▼                 ▼
-                         │        ┌─────────────────────┐  ┌───────────────────────┐
-                         │        │ Qwen2.5-3B           │  │ HR-Recruiter Llama    │
-                         │        │ Extract skills from  │  │ (resume + JD)         │
-                         │        │ JD                   │  │                       │
-                         │        └──────────┬───────────┘  └───────────┬───────────┘
-                         │                   │                          │
-                         └──────────┐        ▼                          ▼
-                                    │  ┌─────────────────────┐  ┌───────────────────────┐
-                                    └─▶│ Match skills vs      │  │ ATS-friendliness tips  │
-                                       │ resume → ATS score   │  │ + interview questions  │
-                                       │ + missing skills     │  │                       │
-                                       └──────────┬───────────┘  └───────────┬───────────┘
-                                                  │                          │
-                                                  ▼                          │
-                                       ┌─────────────────────┐              │
-                                       │ Qwen2.5-3B           │              │
-                                       │ Rank top 5 missing   │              │
-                                       │ skills               │              │
-                                       └──────────┬───────────┘              │
-                                                  │                          │
-                                                  ▼                          │
-                                       ┌─────────────────────┐              │
-                                       │ MiniCPM              │              │
-                                       │ Generate 1 search    │              │
-                                       │ query per skill      │              │
-                                       └──────────┬───────────┘              │
-                                                  │                          │
-                                                  ▼                          │
-                                       ┌─────────────────────┐              │
-                                       │ Exa MCP server       │              │
-                                       │ Web search           │              │
-                                       └──────────┬───────────┘              │
-                                                  │                          │
-                                                  ▼                          │
-                                       ┌─────────────────────┐              │
-                                       │ Course links         │              │
-                                       └──────────┬───────────┘              │
-                                                  │                          │
-                                                  └────────────┬─────────────┘
-                                                                ▼
-                                                     ┌─────────────────────┐
-                                                     │ Final JSON Response │
-                                                     └─────────────────────┘
+    RESUME["Resume (PDF)"] --> TEXT["Resume converted to text"]
+
+    JD["Job Description"]
+
+    JD --> QWEN1["Qwen2.5-3B<br/>Extract skills from JD"]
+
+    TEXT --> HR["HR-Recruiter Llama<br/>(resume + JD)"]
+    JD --> HR
+
+    QWEN1 --> MATCH["Match skills vs<br/>resume → ATS score<br/>+ missing skills"]
+    TEXT --> MATCH
+
+    HR --> TIPS["ATS-friendliness tips<br/>+ interview questions"]
+
+    MATCH --> QWEN2["Qwen2.5-3B<br/>Rank top 5 missing skills"]
+
+    QWEN2 --> MINI["MiniCPM<br/>Generate 1 search<br/>query per skill"]
+
+    MINI --> EXA["Exa MCP server<br/>Web search"]
+
+    EXA --> COURSES["Course links"]
+
+    COURSES --> JSON["Final JSON Response"]
+    TIPS --> JSON
+
+    MATCH -->|ATS Score| JSON
 
 1. The resume (PDF) is converted to text, and the JD is taken as plain text.
 2. **Qwen2.5-3B** reads the JD and extracts every skill/tool/technology mentioned.
